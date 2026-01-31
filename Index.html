@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>⚡ Click Speed Test — Single File</title>
+
+  <!-- ===== INLINE STYLES (vibrant, classy, and user friendly) ===== -->
+  <style>
+    :root{
+      --bg1: #071126;
+      --bg2: #0b2540;
+      --card:#071730;
+      --muted:#9fb0c8;
+      --accent:#00d4ff;        /* primary bright cyan */
+      --accent-2:#8b5cf6;      /* purple */
+      --glass: rgba(255,255,255,0.04);
+      --white: #f7fbff;
+      --success: #10b981;
+      --radius: 14px;
+      --maxw: 820px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background:
+        radial-gradient(600px 300px at 10% 10%, rgba(11,37,70,0.45), transparent 10%),
+        linear-gradient(180deg, var(--bg2) 0%, var(--bg1) 100%);
+      color:var(--white);
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:28px;
+    }
+
+    /* Card container */
+    .card{
+      width:100%;
+      max-width:var(--maxw);
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border-radius:var(--radius);
+      padding:26px;
+      border: 1px solid rgba(255,255,255,0.03);
+      box-shadow: 0 12px 40px rgba(2,6,23,0.6);
+      backdrop-filter: blur(6px) saturate(120%);
+    }
+
+    header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:14px;
+      flex-wrap:wrap;
+    }
+    .title{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+    }
+    h1{ margin:0; font-size:20px; letter-spacing:.2px; display:flex; gap:10px; align-items:center;}
+    p.lead{ margin:0; color:var(--muted); font-size:13px; max-width:760px;}
+
+    /* stats row */
+    .top{
+      display:flex;
+      gap:12px;
+      align-items:center;
+      margin-bottom:18px;
+      flex-wrap:wrap;
+    }
+    .stat{
+      min-width:120px;
+      background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.006));
+      padding:10px 14px;
+      border-radius:10px;
+      border:1px solid rgba(255,255,255,0.02);
+      text-align:center;
+      box-shadow: 0 8px 22px rgba(2,6,23,0.35);
+    }
+    .stat .label{ color:var(--muted); font-size:12px }
+    .stat .value{ font-weight:800; font-size:18px; margin-top:6px }
+
+    /* big click area */
+    .center{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:18px;
+      flex-wrap:wrap;
+      margin-bottom:12px;
+    }
+
+    .big-btn{
+      --padx:44px;
+      --pady:28px;
+      background:linear-gradient(180deg, var(--accent), #00b0d9);
+      border-radius:14px;
+      padding:var(--pady) var(--padx);
+      font-size:28px;
+      font-weight:900;
+      color:#031217;
+      border:none;
+      cursor:pointer;
+      min-width:260px;
+      text-align:center;
+      box-shadow: 0 18px 40px rgba(0,212,255,0.12), inset 0 -6px 18px rgba(0,0,0,0.08);
+      transition:transform .06s ease, box-shadow .12s ease, filter .12s ease;
+      user-select:none;
+    }
+    .big-btn:hover{ transform:translateY(-3px); filter:brightness(1.02) }
+    .big-btn:active{ transform:translateY(1px) scale(.996) }
+    .big-btn:disabled{ opacity:0.65; cursor:not-allowed; transform:none; box-shadow:none }
+
+    /* small controls */
+    .controls{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      justify-content:center;
+      margin-bottom:12px;
+      flex-wrap:wrap;
+    }
+    .btn{
+      background:transparent;
+      border:1px solid rgba(255,255,255,0.04);
+      padding:10px 14px;
+      border-radius:10px;
+      color:var(--white);
+      font-weight:700;
+      cursor:pointer;
+      transition:transform .08s ease, background .12s;
+    }
+    .btn:hover{ transform:translateY(-2px); background: rgba(255,255,255,0.02) }
+
+    select{
+      border-radius:8px;
+      padding:8px 10px;
+      background: rgba(0,0,0,0.18);
+      color:var(--white);
+      border: 1px solid rgba(255,255,255,0.04);
+      font-weight:700;
+    }
+
+    /* message & result */
+    .message{ color:var(--muted); text-align:center; font-size:13px; margin-top:8px; }
+    footer{ display:flex; justify-content:space-between; gap:10px; align-items:center; margin-top:14px; flex-wrap:wrap; }
+    small{ color:var(--muted); font-size:12px }
+
+    /* subtle decoration */
+    .accent-line{
+      height:6px;
+      border-radius:999px;
+      margin-left:8px;
+      width:140px;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      box-shadow: 0 10px 30px rgba(124,58,237,0.06);
+      display:inline-block;
+      vertical-align:middle;
+    }
+
+    /* responsive */
+    @media (max-width:640px){
+      .big-btn{ min-width:200px; padding:20px 28px; font-size:22px }
+      .stat{ min-width:100px; padding:8px 10px }
+      header{ gap:8px }
+    }
+
+    /* keyboard focus */
+    :focus{ outline:none }
+    button:focus, select:focus{ box-shadow: 0 0 0 6px rgba(0,212,255,0.12); border-color: rgba(0,212,255,0.18); }
+
+    /* small flourish when new highscore achieved */
+    .celebrate{
+      display:inline-block;
+      padding:6px 8px;
+      border-radius:8px;
+      background: linear-gradient(90deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
+      color:var(--success);
+      font-weight:800;
+      box-shadow: 0 10px 30px rgba(16,185,129,0.06);
+      transform: translateY(-2px);
+    }
+
+  </style>
+</head>
+<body>
+  <main class="card" role="main" aria-labelledby="title">
+    <header>
+      <div class="title">
+        <h1 id="title">⚡ Click Speed Test <span class="accent-line" aria-hidden="true"></span></h1>
+        <p class="lead">Test how fast you can click in a fixed time. Works on both mobile & desktop. Press <kbd>Space</kbd> or <kbd>Enter</kbd> while running to count clicks.</p>
+      </div>
+
+      <div style="text-align:right">
+        <small>Single-file demo</small>
+      </div>
+    </header>
+
+    <section class="top" aria-hidden="false">
+      <div class="stat" title="Remaining time">
+        <div class="label">Time left</div>
+        <div class="value" id="time">5.0s</div>
+      </div>
+      <div class="stat" title="Current clicks">
+        <div class="label">Clicks</div>
+        <div class="value" id="count">0</div>
+      </div>
+      <div class="stat" title="Best score (saved in your browser)">
+        <div class="label">High score</div>
+        <div class="value" id="high">0</div>
+      </div>
+    </section>
+
+    <section class="center" aria-live="polite">
+      <button id="clickBtn" class="big-btn" aria-pressed="false" disabled>Click Me!</button>
+    </section>
+
+    <section class="controls" role="toolbar" aria-label="game controls">
+      <button id="startBtn" class="btn">Start</button>
+      <button id="restartBtn" class="btn">Reset</button>
+
+      <label style="display:flex;align-items:center;gap:8px;color:var(--muted);font-weight:700;">
+        Duration:
+        <select id="durationSelect" aria-label="Game duration">
+          <option value="5">5s</option>
+          <option value="10">10s</option>
+          <option value="15">15s</option>
+        </select>
+      </label>
+    </section>
+
+    <p class="message" id="message">Press <strong>Start</strong> to begin. High score is saved locally in your browser.</p>
+
+    <footer>
+      <small>Made by Sanjay</small>
+      <small id="result" aria-live="polite"></small>
+    </footer>
+  </main>
+
+  <!-- ===== INLINE SCRIPT (full logic) ===== -->
+  <script>
+    (function(){
+      "use strict";
+
+      // Elements
+      const timeEl = document.getElementById('time');
+      const countEl = document.getElementById('count');
+      const highEl = document.getElementById('high');
+      const clickBtn = document.getElementById('clickBtn');
+      const startBtn = document.getElementById('startBtn');
+      const restartBtn = document.getElementById('restartBtn');
+      const durationSelect = document.getElementById('durationSelect');
+      const messageEl = document.getElementById('message');
+      const resultEl = document.getElementById('result');
+
+      // Config
+      const STORAGE_KEY = 'clickSpeedHighScore';
+      const TICK_MS = 100; // update every 100ms -> shows tenths
+      let duration = parseInt(durationSelect.value,10) || 5;
+      let remaining = duration;
+      let clicks = 0;
+      let running = false;
+      let timer = null;
+
+      // Helpers for localStorage
+      function loadHighScore(){
+        try {
+          const v = parseInt(localStorage.getItem(STORAGE_KEY), 10);
+          return Number.isFinite(v) ? v : 0;
+        } catch(e){ return 0; }
+      }
+      function saveHighScore(v){
+        try { localStorage.setItem(STORAGE_KEY, String(v)); } catch(e){}
+      }
+
+      // UI helpers
+      function setClickEnabled(enabled){
+        clickBtn.disabled = !enabled;
+        clickBtn.setAttribute('aria-pressed', String(enabled));
+        // pointer cursor when enabled
+        clickBtn.style.cursor = enabled ? 'pointer' : 'not-allowed';
+        if (enabled) clickBtn.focus({preventScroll:true});
+      }
+      function updateDisplays(){
+        timeEl.textContent = remaining.toFixed(1) + 's';
+        countEl.textContent = String(clicks);
+        highEl.textContent = String(loadHighScore());
+      }
+      function setMessage(text){ messageEl.textContent = text; }
+
+      // Game lifecycle
+      function startGame(){
+        if (running) return;
+        duration = parseInt(durationSelect.value,10) || 5;
+        remaining = duration;
+        clicks = 0;
+        running = true;
+        updateDisplays();
+        setClickEnabled(true);
+        resultEl.textContent = '';
+        setMessage('Game running — click as fast as you can!');
+        // safety: clear existing timer
+        if (timer) { clearInterval(timer); timer = null; }
+
+        timer = setInterval(()=>{
+          remaining -= TICK_MS/1000;
+          if (remaining <= 0){
+            remaining = 0;
+            updateDisplays();
+            endGame();
+          } else {
+            updateDisplays();
+          }
+        }, TICK_MS);
+      }
+
+      function endGame(){
+        if (!running) return;
+        running = false;
+        if (timer){ clearInterval(timer); timer = null; }
+        setClickEnabled(false);
+        resultEl.textContent = `Final score: ${clicks}`;
+        let msg = `Time's up! You clicked ${clicks} times.`;
+        const prev = loadHighScore();
+        if (clicks > prev){
+          saveHighScore(clicks);
+          highEl.textContent = String(clicks);
+          msg += ' 🎉 New high score!';
+          // small celebration
+          resultEl.innerHTML = `Final score: <span class="celebrate">${clicks}</span>`;
+        }
+        setMessage(msg);
+      }
+
+      function resetGame(){
+        if (timer){ clearInterval(timer); timer = null; }
+        running = false;
+        duration = parseInt(durationSelect.value,10) || 5;
+        remaining = duration;
+        clicks = 0;
+        setClickEnabled(false);
+        resultEl.textContent = '';
+        updateDisplays();
+        setMessage('Press Start to play again.');
+      }
+
+      // Input handlers
+      clickBtn.addEventListener('click', ()=>{
+        if (!running) return;
+        clicks++;
+        countEl.textContent = String(clicks);
+        // small tactile feedback (scale)
+        clickBtn.style.transform = 'scale(0.99)';
+        setTimeout(()=>{ clickBtn.style.transform = ''; }, 70);
+      });
+
+      startBtn.addEventListener('click', startGame);
+      restartBtn.addEventListener('click', resetGame);
+
+      durationSelect.addEventListener('change', ()=>{
+        resetGame();
+        duration = parseInt(durationSelect.value,10) || 5;
+        remaining = duration;
+        updateDisplays();
+      });
+
+      // keyboard support: Space or Enter count as clicks while running
+      window.addEventListener('keydown', (e)=>{
+        // ignore if typing in inputs (none here, but good practice)
+        const active = document.activeElement;
+        if (active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA')) return;
+        if (!running) return;
+        if (e.code === 'Space' || e.code === 'Enter'){
+          e.preventDefault();
+          clickBtn.click();
+        }
+      });
+
+      // Initialize UI on load
+      function init(){
+        duration = parseInt(durationSelect.value,10) || 5;
+        remaining = duration;
+        clicks = 0;
+        running = false;
+        highEl.textContent = String(loadHighScore());
+        countEl.textContent = '0';
+        timeEl.textContent = duration.toFixed(1) + 's';
+        setClickEnabled(false);
+        setMessage('Press Start to begin. Use Space or Enter to click while playing.');
+      }
+      if (document.readyState === 'complete' || document.readyState === 'interactive'){
+        setTimeout(init, 10);
+      } else {
+        document.addEventListener('DOMContentLoaded', init);
+      }
+
+      // Expose a small debug helper (optional)
+      window.__clickGame = {
+        start: startGame,
+        end: endGame,
+        reset: resetGame,
+        state: ()=>({running, clicks, remaining, duration, high: loadHighScore()})
+      };
+    })();
+  </script>
+</body>
+</html>
